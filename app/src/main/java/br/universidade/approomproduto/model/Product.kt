@@ -10,6 +10,5 @@ data class Product(
     @ColumnInfo(name = "name") val name: String,
     @ColumnInfo(name = "price") val price: Double,
     @ColumnInfo(name = "description") val description: String?,
-    // A8: nova coluna (quantidade em estoque) -> versão do banco subiu para 2
-    @ColumnInfo(name = "quantity") val quantity: Int = 0
+    @ColumnInfo(name = "quantity") val quantity: Int = 0 // A8: novo campo
 )

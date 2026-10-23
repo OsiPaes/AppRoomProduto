@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:fitsSystemWindows="true">
+    android:layout_height="match_parent">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -10,35 +9,33 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- Cadastro -->
         <EditText
             android:id="@+id/editProductName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="text"
-            android:hint="Nome do Produto" />
+            android:hint="@string/hint_nome" />
 
         <EditText
             android:id="@+id/editProductPrice"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="numberDecimal"
-            android:hint="Preço" />
+            android:hint="@string/hint_preco" />
 
         <EditText
             android:id="@+id/editProductDescription"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="text"
-            android:hint="Descrição" />
+            android:hint="@string/hint_descricao" />
 
-        <!-- A8: novo campo -->
         <EditText
             android:id="@+id/editProductQuantity"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="number"
-            android:hint="Quantidade em estoque" />
+            android:hint="@string/hint_quantidade" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -48,99 +45,105 @@
             <Button
                 android:id="@+id/btnInserirProduto"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:layout_marginEnd="4dp"
-                android:text="Inserir Produto" />
+                android:layout_height="wrap_content"
+                android:text="@string/btn_inserir_produto" />
 
             <Button
                 android:id="@+id/btnListarProdutos"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:layout_marginStart="4dp"
-                android:text="Listar Produtos" />
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="@string/btn_listar_produtos" />
         </LinearLayout>
 
-        <!-- A5: busca por nome -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="16dp"
             android:orientation="horizontal">
 
             <EditText
                 android:id="@+id/editBusca"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:layout_height="wrap_content"
                 android:inputType="text"
-                android:hint="Buscar por nome" />
+                android:hint="@string/hint_busca" />
 
             <Button
                 android:id="@+id/btnBuscar"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Buscar" />
+                android:text="@string/btn_buscar" />
         </LinearLayout>
 
-        <!-- A7: atualizar preço pelo id -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/editId"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:hint="@string/hint_id" />
+
+            <EditText
+                android:id="@+id/editNovoPreco"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:inputType="numberDecimal"
+                android:hint="@string/hint_novo_preco" />
+        </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
-            <EditText
-                android:id="@+id/editUpdateId"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:inputType="number"
-                android:hint="Id" />
-
-            <EditText
-                android:id="@+id/editUpdatePrice"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="2"
-                android:inputType="numberDecimal"
-                android:hint="Novo preço" />
-
             <Button
                 android:id="@+id/btnAtualizarPreco"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
+                android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text="Atualizar" />
+                android:text="@string/btn_atualizar_preco" />
+
+            <Button
+                android:id="@+id/btnExcluirPorId"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="@string/btn_excluir_por_id" />
         </LinearLayout>
 
-        <!-- A6: excluir todos -->
         <Button
             android:id="@+id/btnExcluirTodos"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="Excluir Todos" />
+            android:text="@string/btn_excluir_todos" />
 
-        <!-- A4: total do estoque -->
         <TextView
-            android:id="@+id/textTotal"
+            android:id="@+id/txtResumo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:textStyle="bold"
-            android:textSize="16sp" />
+            android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/textEmpty"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-        <!-- A3: lista na tela (RecyclerView) -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerProducts"
+            android:id="@+id/txtListaProdutos"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:nestedScrollingEnabled="false" />
+            android:layout_marginTop="8dp"
+            android:textSize="15sp" />
 
     </LinearLayout>
-</androidx.core.widget.NestedScrollView>
+</ScrollView>

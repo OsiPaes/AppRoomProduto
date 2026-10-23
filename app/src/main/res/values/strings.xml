@@ -1,3 +1,37 @@
 <resources>
     <string name="app_name">AppRoomProduto</string>
+
+    <!-- Campos -->
+    <string name="hint_nome">Nome do Produto</string>
+    <string name="hint_preco">Preço</string>
+    <string name="hint_descricao">Descrição</string>
+    <string name="hint_quantidade">Quantidade em estoque</string>
+    <string name="hint_busca">Buscar por nome</string>
+    <string name="hint_id">ID</string>
+    <string name="hint_novo_preco">Novo preço</string>
+
+    <!-- Botões -->
+    <string name="btn_inserir_produto">Inserir Produto</string>
+    <string name="btn_listar_produtos">Listar Produtos</string>
+    <string name="btn_buscar">Buscar</string>
+    <string name="btn_atualizar_preco">Atualizar Preço</string>
+    <string name="btn_excluir_por_id">Excluir por ID</string>
+    <string name="btn_excluir_todos">Excluir Todos</string>
+
+    <!-- Erros de validação -->
+    <string name="erro_nome_vazio">Informe o nome</string>
+    <string name="erro_preco_invalido">Informe um preço válido</string>
+    <string name="erro_id_vazio">Informe um ID</string>
+
+    <!-- Mensagens -->
+    <string name="msg_produto_inserido">Produto inserido!</string>
+    <string name="msg_todos_excluidos">Todos os produtos foram excluídos</string>
+    <string name="msg_produto_nao_encontrado">Produto #%1$d não encontrado</string>
+    <string name="msg_produto_excluido">Produto #%1$d excluído</string>
+    <string name="msg_preco_atualizado">Preço atualizado!</string>
+    <string name="msg_nenhum_produto">Nenhum produto encontrado.</string>
+
+    <!-- Lista -->
+    <string name="resumo_produtos">Produtos cadastrados: %1$d  |  Soma dos preços: %2$s</string>
+    <string name="item_produto">#%1$d - %2$s\nPreço: %3$s  |  Qtd: %4$d\nDescrição: %5$s</string>
 </resources>
