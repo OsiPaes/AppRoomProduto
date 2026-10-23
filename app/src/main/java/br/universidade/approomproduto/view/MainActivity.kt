@@ -40,7 +40,7 @@ class MainActivity : AppCompatActivity() {
             applicationContext,
             AppDatabase::class.java, "database-name"
         )
-            .fallbackToDestructiveMigration(dropAllTables = true) // recria o banco se o schema mudar
+            .fallbackToDestructiveMigration() // recria o banco se o schema mudar
             .build()
 
         productDao = db.productDao()

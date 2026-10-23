@@ -14,7 +14,7 @@ Para salvar os dados, utilizei o Room, que trabalha com o banco de dados SQLite.
 ## Tecnologias utilizadas
 
 - Kotlin
-- Room 2.8.4 (SQLite)
+- Room 2.6.1 (SQLite)
 - ViewBinding
 - Corrotinas com lifecycleScope
 
@@ -364,10 +364,10 @@ de threads) e devolve a mesma instância nas próximas chamadas. Assim todas as 
 
 ## B8. Reflexão pessoal: dificuldades e um app real em que o Room seria útil
 
-A primeira dificuldade apareceu logo no Gradle. O tutorial pede o `id("kotlin-kapt")`, mas o meu
-Android Studio cria projetos com o AGP 9, que já vem com o Kotlin embutido, e o build simplesmente não
-reconhecia o plugin. Depois de pesquisar descobri que nessa versão é preciso usar o
-`com.android.legacy-kapt`, e aproveitei para usar o Room 2.8.4, que é compatível com o Kotlin mais novo.
+A primeira dificuldade apareceu logo no Gradle. O projeto tinha sido criado num Android Studio mais
+novo, com o AGP 9, e quando fui abrir no Android Studio Koala do laboratório ele simplesmente não
+sincronizava, porque essa versão não reconhece o AGP 9. Precisei voltar a configuração para o AGP 8.5,
+com o plugin `kotlin-kapt` e o Room 2.6.1, que é exatamente o que o tutorial usa, e aí o projeto abriu.
 Outra coisa que me pegou foi o item A8: quando adicionei o campo `quantity`, os produtos que eu tinha
 cadastrado desapareceram e no começo achei que era bug no meu código. Foi aí que entendi de verdade o que
 é a versão do banco e o que o `fallbackToDestructiveMigration()` faz. Também levei um tempo para me
@@ -389,3 +389,5 @@ baixo e usaria migrações de verdade em vez de apagar o banco a cada mudança.
 2. Abra o projeto no Android Studio.
 3. Aguarde a sincronização do Gradle.
 4. Execute o aplicativo em um emulador Android com API 24 ou superior.
+
+> Configuração testada para o Android Studio Koala (2024.1.1): AGP 8.5, Kotlin 1.9, Gradle 8.7 e compileSdk 34.
