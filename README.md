@@ -1,7 +1,7 @@
 # AppRoomProduto: Cadastro de Produtos com Room SQLite
 
-**Aluno:** Osi Paes Junior **RA:** 237112
-**Aluno:** Guilherme Lins dos Santos **RA:** 236161
+**Aluno:** Osi Paes Junior **RA:** 237112 \
+**Aluno:** Guilherme Lins dos Santos **RA:** 236161 \
 **Disciplina:** Programação para Dispositivos Móveis  
 **Professor(a):** ALESSANDRO FERREIRA PAZ LIMA
 
