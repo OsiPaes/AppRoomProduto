@@ -1,7 +1,7 @@
 # AppRoomProduto: Cadastro de Produtos com Room SQLite
 
 **Aluno:** Osi Paes Junior  
-**RA:** 000000  
+**RA:** 237112  
 **Disciplina:** Programação para Dispositivos Móveis  
 **Professor(a):** ALESSANDRO FERREIRA PAZ LIMA
 
@@ -258,126 +258,128 @@ ADD COLUMN quantity INTEGER NOT NULL DEFAULT 0;
 
 ## B1. O que é persistência de dados? O que aconteceria se os produtos fossem guardados apenas em uma MutableList dentro da MainActivity?
 
-Persistência de dados é a capacidade de salvar informações para que elas continuem disponíveis mesmo depois que o programa é fechado.
-
-No meu projeto, os produtos são salvos em um banco SQLite por meio do Room. Por isso, consigo fechar o aplicativo, abrir novamente e consultar os produtos que já estavam cadastrados.
-
-Se eu utilizasse apenas uma `MutableList` dentro da `MainActivity`, os dados ficariam armazenados na memória RAM. Quando o aplicativo fosse encerrado, essas informações seriam perdidas.
-
-Além disso, a Activity pode ser recriada em algumas situações, como quando o usuário gira a tela. Nesse caso, a lista também poderia ser perdida se os dados não fossem salvos em outro lugar.
-
-Por isso, utilizar um banco de dados é importante para manter as informações salvas mesmo depois que o aplicativo é fechado.
+Pra mim, persistência de dados é fazer a informação "sobreviver" ao programa: o dado é gravado em
+um lugar permanente, como um arquivo ou um banco, e não fica só na memória enquanto o app está aberto.
+No AppRoomProduto isso acontece quando eu clico em **Inserir Produto**: o `productDao.insertAll()` grava
+o produto no arquivo SQLite `database-name`, que fica guardado no próprio celular. Testei fechando o app
+pelo emulador e abrindo de novo, e ao clicar em **Listar Produtos** os itens continuavam lá.
+Se eu tivesse usado uma `MutableList<Product>` dentro da `MainActivity`, a lista existiria só na RAM,
+presa àquele objeto da Activity. Qualquer coisa que destruísse a Activity, como fechar o app, o sistema
+matar o processo para liberar memória ou até girar a tela, faria a lista voltar vazia.
+Ou seja, funcionaria só enquanto a tela estivesse aberta, o que não serve para um cadastro de verdade.
 
 ## B2. Qual é a diferença entre usar o SQLite diretamente e usar o Room? Cite pelo menos duas vantagens do Room.
 
-O SQLite é o banco de dados utilizado para armazenar as informações. Já o Room é uma biblioteca do Android que facilita o trabalho com esse banco.
+O SQLite é o banco em si, e o Room é uma biblioteca do Jetpack que fica por cima dele e facilita o uso.
+Usando o SQLite "puro", com `SQLiteOpenHelper`, eu teria que escrever o `CREATE TABLE` na mão, montar
+cada `INSERT`, `UPDATE` e `DELETE` como texto, e depois ler o `Cursor` coluna por coluna para montar
+cada objeto `Product`. É bastante código repetido e qualquer erro de digitação só aparece quando o app roda.
+Com o Room eu só descrevo o que quero através de anotações e ele gera essa parte chata durante a compilação.
+As vantagens que mais senti no projeto foram:
 
-Se eu utilizasse o SQLite diretamente, precisaria escrever mais código para criar as tabelas, inserir os dados e consultar os produtos. Também teria que converter manualmente os resultados das consultas em objetos Kotlin.
-
-Com o Room, boa parte desse trabalho fica mais simples, porque ele permite definir as tabelas com `@Entity` e as operações com `@Dao`.
-
-Duas vantagens do Room são:
-
-1. **Menos código:** operações como inserir, atualizar e excluir produtos podem ser feitas com anotações como `@Insert`, `@Update` e `@Delete`.
-2. **Verificação das consultas:** o Room consegue verificar as consultas SQL durante a compilação, ajudando a encontrar erros antes de executar o aplicativo.
-
-Outra vantagem é o suporte a corrotinas, que facilita a execução das operações do banco sem bloquear a tela do aplicativo.
+1. **Menos código:** no `ProductDao`, para inserir, atualizar ou excluir bastou escrever `@Insert`,
+   `@Update` e `@Delete` em cima da função, e o retorno já vem como `List<Product>`.
+2. **Erros de SQL aparecem na compilação:** se eu escrever o nome da tabela ou de uma coluna errado no
+   `@Query`, o build falha e me avisa, em vez de o app fechar na mão do usuário.
+3. **Suporte a corrotinas:** as funções do DAO podem ser `suspend`, o que já resolve a questão de não
+   travar a tela.
 
 ## B3. Explique o papel de cada uma das três peças do Room: Entity, DAO e Database. Como elas se relacionam no seu projeto?
 
-O Room possui três partes principais: Entity, DAO e Database.
-
-A **Entity** representa a tabela do banco de dados. No meu projeto, é a classe `Product`, que contém os campos de cada produto, como ID, nome, preço, descrição e quantidade.
-
-O **DAO** é responsável pelas operações no banco. No meu caso, a interface `ProductDao` possui funções para listar, cadastrar, buscar, atualizar e excluir produtos.
-
-O **Database** é a classe que configura o banco de dados. No projeto, essa função é realizada pela classe `AppDatabase`, que informa qual entidade será utilizada, qual é a versão do banco e disponibiliza o DAO.
-
-Essas três partes trabalham juntas. A `AppDatabase` utiliza a entidade `Product` e disponibiliza o `ProductDao`. Depois, na `MainActivity`, utilizo o DAO para realizar as operações com os produtos, sem precisar acessar o banco diretamente.
+Eu entendi as três peças como "a tabela", "os comandos" e "o banco que junta tudo".
+A **Entity** é a classe `Product`, marcada com `@Entity`. Ela vira a tabela `product`, e cada atributo
+(`id`, `name`, `price`, `description` e `quantity`) vira uma coluna, sendo o `id` a chave primária gerada
+automaticamente pelo banco.
+O **DAO** é a interface `ProductDao`, marcada com `@Dao`. É nela que ficam as operações que o app pode
+fazer: `getAll`, `insertAll`, `buscarPorNome`, `getById`, `update`, `delete` e `deleteAll`.
+O **Database** é a classe abstrata `AppDatabase`, com `@Database`. Ela diz que o banco contém a entidade
+`Product`, que está na versão 2 e entrega o DAO pela função `productDao()`.
+Na prática, a `MainActivity` cria o `AppDatabase` com `Room.databaseBuilder`, pede o `ProductDao` para
+ele e a partir daí só conversa com o DAO, mandando e recebendo objetos `Product`. Quem escreve a
+implementação de verdade dessas classes é o próprio Room, via kapt.
 
 ## B4. Por que o Android não permite acessar o banco na thread principal? O que é um ANR? Como suspend e lifecycleScope.launch resolvem o problema?
 
-A thread principal do Android é responsável por atualizar a interface e responder às ações do usuário. Se uma operação demorar muito nessa thread, o aplicativo pode ficar travado e deixar de responder aos comandos.
-
-Quando o aplicativo fica sem responder por tempo suficiente, o Android pode exibir uma mensagem de ANR, que significa _Application Not Responding_.
-
-No meu projeto, utilizo funções `suspend` no DAO e `lifecycleScope.launch` na `MainActivity` para realizar as operações com o banco usando corrotinas.
-
-As funções `suspend` permitem que as operações sejam suspensas enquanto aguardam um resultado, sem precisar bloquear a thread principal. O Room também executa suas operações de banco em uma thread de segundo plano quando elas são chamadas por essas funções suspensas.
-
-Já o `lifecycleScope.launch` permite iniciar uma corrotina a partir de uma ação do usuário, como clicar em um botão. Assim, consigo consultar o banco e depois atualizar a tela com o resultado.
-
-Dessa forma, o aplicativo continua respondendo enquanto as operações são realizadas. Além disso, as corrotinas vinculadas ao ciclo de vida da Activity são canceladas quando ela é destruída.
+A thread principal (UI thread) é a que desenha a tela e trata os cliques. Ler e gravar no banco
+significa acessar o disco, e isso pode demorar. Se essa espera acontecer na thread principal, a tela
+congela e nenhum botão responde até a operação terminar.
+Quando o app fica travado por alguns segundos, o Android mostra o **ANR** (_Application Not
+Responding_), aquela janela avisando que o aplicativo não está respondendo e oferecendo para fechá-lo.
+Para evitar isso, o Room por padrão nem deixa fazer consulta na thread principal e lança o erro
+`Cannot access database on the main thread`.
+No meu projeto, todas as funções do `ProductDao` são `suspend`, então o Room executa o acesso ao banco
+em uma thread de segundo plano. Na `MainActivity`, eu chamo essas funções dentro de
+`lifecycleScope.launch { }`, que inicia uma corrotina: ela espera o banco responder sem bloquear a tela
+e, quando o resultado chega, continua na thread principal, onde posso mostrar o `Toast` e atualizar os
+`TextView`. Um bônus é que o `lifecycleScope` cancela a corrotina sozinho se a Activity for destruída.
 
 ## B5. O que faz o fallbackToDestructiveMigration()? Por que ele é perigoso em um app publicado? O que seria uma Migration?
 
-O `fallbackToDestructiveMigration()` é uma configuração do Room que permite recriar o banco de dados quando ocorre uma mudança de versão e não existe uma migração adequada para realizá-la.
-
-No meu projeto, isso aconteceu quando adicionei o campo `quantity` e alterei a versão do banco de 1 para 2. Como não havia uma migração configurada, o banco antigo foi apagado e um novo foi criado com a estrutura atualizada.
-
-Durante o desenvolvimento, isso pode facilitar os testes. Porém, em um aplicativo publicado, seria um problema, porque os usuários poderiam perder os dados que já estavam salvos.
-
-Uma `Migration` serve justamente para atualizar a estrutura do banco sem precisar apagar todas as informações existentes.
-
-No meu caso, poderia criar uma migração da versão 1 para a 2 adicionando a coluna `quantity` com um valor padrão igual a zero para os produtos antigos.
+O `fallbackToDestructiveMigration()` é uma configuração do `Room.databaseBuilder` que diz o seguinte:
+se a versão do banco mudar e não houver nenhuma migração cadastrada, pode apagar as tabelas e criar tudo
+de novo com a estrutura nova. Eu vi isso acontecer na prática no item A8: depois de adicionar o campo
+`quantity` e subir a versão para 2, os produtos que eu já tinha cadastrado sumiram.
+Enquanto estou desenvolvendo isso até ajuda, porque não preciso me preocupar com os dados de teste.
+Mas num app publicado na Play Store seria um problema sério: ao atualizar o app, todo usuário perderia
+o que tinha salvo, sem nenhum aviso.
+A **Migration** é o jeito certo de resolver isso: é um código que explica ao Room como levar o banco de
+uma versão para outra mantendo os dados. No meu caso, da versão 1 para a 2 bastaria adicionar a coluna
+nova com valor padrão zero:
 
 ```kotlin
-object : Migration(1, 2) {
+val MIGRATION_1_2 = object : Migration(1, 2) {
     override fun migrate(db: SupportSQLiteDatabase) {
-        db.execSQL(
-            "ALTER TABLE product ADD COLUMN quantity INTEGER NOT NULL DEFAULT 0"
-        )
+        db.execSQL("ALTER TABLE product ADD COLUMN quantity INTEGER NOT NULL DEFAULT 0")
     }
 }
 ```
 
-Depois, essa migração precisaria ser registrada na configuração do banco com `addMigrations()`.
-
-Assim, os produtos antigos seriam mantidos e passariam a ter o campo de quantidade preenchido com zero.
+Depois é só registrar com `.addMigrations(MIGRATION_1_2)` no builder, e os produtos antigos continuariam
+lá, apenas com a quantidade igual a zero.
 
 ## B6. Qual é a vantagem do ViewBinding em relação ao findViewById? Que tipo de erro ele ajuda a evitar?
 
-O `ViewBinding` facilita o acesso aos componentes da tela e evita a necessidade de utilizar `findViewById()` para cada campo, botão ou outro elemento do layout.
-
-Com o `findViewById()`, eu precisaria buscar cada componente pelo seu ID e informar seu tipo. Isso deixa o código mais repetitivo e aumenta a possibilidade de erros.
-
-Já com o ViewBinding, o Android gera uma classe com referências aos componentes do layout. No meu projeto, utilizo a variável `binding` para acessar os elementos, como `binding.editProductName` e `binding.btnBuscar`.
-
-Uma das principais vantagens é a segurança de tipos, pois cada componente já possui o tipo correspondente. Isso ajuda a evitar erros como tentar utilizar um botão como se fosse um campo de texto.
-
-Além disso, o código fica mais organizado e fácil de entender.
+Com o `findViewById` eu teria que procurar cada componente pelo id e dizer o tipo dele, algo como
+`findViewById<EditText>(R.id.editProductName)`, repetindo isso para cada um dos vários campos e botões
+da minha tela. Se eu passar um id errado ou o tipo errado, o código compila normalmente e o erro só
+aparece rodando, como um `NullPointerException` ou um `ClassCastException`.
+Com o ViewBinding ativado no `build.gradle.kts` (`viewBinding = true`), o Android gera a classe
+`ActivityMainBinding` a partir do `activity_main.xml`, com uma propriedade para cada view que tem id e já
+no tipo certo. Por isso no código eu só escrevo `binding.editProductPrice` ou `binding.btnBuscar`.
+A grande vantagem é a segurança: se eu renomear ou apagar um id no XML, o erro aparece na compilação,
+e não tem como tratar um `Button` como se fosse um `EditText`. Além disso o código fica bem mais curto.
 
 ## B7. Por que em apps maiores é recomendado criar o banco como Singleton? O que poderia acontecer se várias telas criassem cada uma o seu banco?
 
-O padrão Singleton é utilizado para garantir que exista apenas uma instância de determinada classe durante a execução do aplicativo.
-
-No meu projeto, o banco é criado na `MainActivity`. Como o aplicativo possui apenas uma tela principal, essa abordagem funciona para o que foi desenvolvido.
-
-Porém, em um aplicativo com várias telas, não seria interessante criar uma nova instância do banco toda vez que uma tela fosse aberta.
-
-Isso poderia aumentar o consumo de recursos e gerar instâncias desnecessárias para acessar o mesmo banco de dados. Além disso, várias instâncias podem dificultar o controle das alterações e a atualização das informações exibidas nas telas.
-
-Com o Singleton, todas as telas utilizariam a mesma instância do banco, deixando o acesso mais organizado e evitando a criação repetida de conexões.
-
-Uma forma de implementar isso seria criar um método na classe `AppDatabase` para verificar se o banco já existe e, caso não exista, criar a instância.
+Singleton é um padrão de projeto que garante que só exista uma instância de uma classe no app inteiro.
+No AppRoomProduto o banco é criado direto na `MainActivity`, o que funciona porque o app só tem uma tela.
+Só que criar um `RoomDatabase` é uma operação pesada: ele abre o arquivo, prepara as conexões e carrega o
+esquema. Se cada tela fizesse o seu próprio `Room.databaseBuilder`, o app gastaria memória e tempo à toa
+e teria várias conexões abertas para o mesmo arquivo ao mesmo tempo. Isso pode gerar problemas de
+concorrência, como uma tela mostrar dados desatualizados porque outra gravou por outra instância, ou
+erros de banco bloqueado.
+O ideal seria mover a criação para dentro do `AppDatabase`, num `companion object` com uma função
+`getInstance(context)` que só cria o banco na primeira vez (usando `@Volatile` e `synchronized` por causa
+de threads) e devolve a mesma instância nas próximas chamadas. Assim todas as telas usariam o mesmo banco.
 
 ## B8. Reflexão pessoal: dificuldades e um app real em que o Room seria útil
 
-Uma das minhas principais dificuldades foi entender por que o aplicativo apresentava um erro ao tentar listar os produtos quando o acesso ao banco era feito na thread principal.
-
-No começo, não tinha entendido completamente a necessidade de utilizar funções `suspend` e corrotinas. Depois de estudar como funciona a execução em segundo plano no Android, consegui entender melhor por que essa abordagem é importante.
-
-Outra dificuldade foi a alteração realizada na parte A8. Quando adicionei o campo `quantity`, os produtos cadastrados anteriormente desapareceram. Precisei entender como funciona a atualização da versão do banco e por que o `fallbackToDestructiveMigration()` apagou os dados.
-
-Também aprendi melhor como funcionam as operações de atualização e exclusão, principalmente a necessidade de localizar o produto pelo ID antes de realizar essas ações.
-
-Um exemplo de aplicativo em que utilizaria o Room seria um sistema de controle de estoque para um pequeno comércio, como uma papelaria ou um mercadinho.
-
-Nesse caso, seria possível cadastrar os produtos, controlar as quantidades disponíveis e registrar as entradas e saídas do estoque. Como os dados ficariam salvos localmente, o aplicativo poderia continuar funcionando mesmo sem conexão com a internet.
-
-Também poderia adicionar uma funcionalidade para avisar quando determinado produto estivesse com pouco estoque, utilizando uma consulta ao banco para encontrar os produtos com quantidade abaixo de um valor definido.
-
-Dessa forma, o Room seria útil para manter os dados salvos no próprio dispositivo e permitir que o aplicativo funcionasse mesmo quando não houvesse acesso à internet.
+A primeira dificuldade apareceu logo no Gradle. O tutorial pede o `id("kotlin-kapt")`, mas o meu
+Android Studio cria projetos com o AGP 9, que já vem com o Kotlin embutido, e o build simplesmente não
+reconhecia o plugin. Depois de pesquisar descobri que nessa versão é preciso usar o
+`com.android.legacy-kapt`, e aproveitei para usar o Room 2.8.4, que é compatível com o Kotlin mais novo.
+Outra coisa que me pegou foi o item A8: quando adicionei o campo `quantity`, os produtos que eu tinha
+cadastrado desapareceram e no começo achei que era bug no meu código. Foi aí que entendi de verdade o que
+é a versão do banco e o que o `fallbackToDestructiveMigration()` faz. Também levei um tempo para me
+acostumar com as corrotinas e com a ideia de que a lista na tela só pode ser atualizada depois que o
+banco termina de responder. No fim organizei o projeto seguindo as convenções do Android, como colocar os
+textos no `strings.xml`.
+Como estudante de TI, um app real em que eu usaria o Room é um **controle de estoque para uma pequena
+loja de informática**, com peças como memórias, SSDs e cabos. Daria para cadastrar cada item com preço e
+quantidade, dar baixa quando vender, buscar pelo nome no balcão e ver o total do estoque, tudo
+**offline**, sem depender de internet. Eu aproveitaria a estrutura deste projeto (`Product` com
+`quantity` e o DAO com busca, update e delete), criaria uma consulta para listar os itens com estoque
+baixo e usaria migrações de verdade em vez de apagar o banco a cada mudança.
 
 ---
 
